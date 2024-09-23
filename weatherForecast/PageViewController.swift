@@ -32,10 +32,23 @@ class PageViewController: UIViewController {
         
         if SettingsStore.shared.isAutoLocation() {
             let coords: (Double, Double) = LocationService.shared.getCurrentLocation()
-            let page = ContentCurrentViewController(lat: coords.0, lon: coords.1)
+            let page = ContentCurrentViewController(
+                lat: coords.0,
+                lon: coords.1
+            )
             
             pages.append(page)
         }
+        
+        let savedCities = CoreDataManager.shared.getCities()
+        for city in savedCities {
+            let page = ContentCurrentViewController(
+                lat: city.0,
+                lon: city.1
+            )
+            pages.append(page)
+        }
+
         
         pages.append(emptyPage)
         

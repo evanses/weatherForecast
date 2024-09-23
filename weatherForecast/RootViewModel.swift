@@ -8,17 +8,13 @@
 import UIKit
 
 class RootViewModel {
-    init() {
-        
-    }
+    init() {}
     
     func checkFirsRun(navigationController: UINavigationController) {
-
         if SettingsStore.shared.isFirstRun() {
             let onboardingViewController = OnboardingViewController()
             onboardingViewController.modalPresentationStyle = .fullScreen
             navigationController.present(onboardingViewController, animated: true)
         }
-        
     }
 }

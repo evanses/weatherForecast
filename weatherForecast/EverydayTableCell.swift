@@ -129,16 +129,13 @@ class EverydayTableCell : UITableViewCell {
     
     // MARK: - Public
     
-    func setup(with dayConfig: CityModelDay, and date: String) {
+    func setup(with model: CityWeatherForecast) {
         let dateFormatter = DateFormatter()
-        dateFormatter.timeZone = .gmt
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        let date = dateFormatter.date(from: date)
         dateFormatter.dateFormat = "MM/dd"
-        dateLabel.text = dateFormatter.string(from: date!)
+        dateLabel.text = dateFormatter.string(from: model.date)
         
-        humidityLabel.text = "\(dayConfig.avgHumidity)%"
-        conditionLabel.text = dayConfig.condition.text
-        gradusesLabel.text = "\(Int(dayConfig.getAvarageTemp().0))°-\(Int(dayConfig.getAvarageTemp().1))°"
+        humidityLabel.text = "\(model.avgHumidity)%"
+        conditionLabel.text = model.conditionText
+        gradusesLabel.text = "\(Int(model.getAvarageTemp().0))°-\(Int(model.getAvarageTemp().1))°"
     }
 }

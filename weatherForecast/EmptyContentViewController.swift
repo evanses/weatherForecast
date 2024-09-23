@@ -21,14 +21,14 @@ class EmptyContentViewController: UIViewController {
         
         image.isHidden = true
         
-//        image.isUserInteractionEnabled = true
+        image.isUserInteractionEnabled = true
         
-//        let longTap = UILongPressGestureRecognizer(target: self, action: #selector(vehicleIconLongPress(_ :)))
-//        image.addGestureRecognizer(longTap)
-//
-//        editMenuInteraction = UIEditMenuInteraction(delegate: self)
-//        image.addInteraction(editMenuInteraction!)
-    
+        let tap = UITapGestureRecognizer(
+            target: self,
+            action: #selector(addNewCity)
+        )
+        tap.numberOfTapsRequired = 1
+        image.addGestureRecognizer(tap)
         return image
     }()
     
@@ -58,5 +58,24 @@ class EmptyContentViewController: UIViewController {
     
     
     // MARK: Action
+    
+    @objc private func addNewCity() {
+        AddCityAlertView.picker.show(in: self) { cityName in
+            NetworkManager.shared.geoCoding(cityName: cityName) { result in
+                switch result {
+                case .success(let success):
+                    CoreDataManager.shared.addCity(newCity: success)
+                    
+                    DispatchQueue.main.async {
+                        AlertView.alert.show(in: self, text: "Город добавлен!")
+                    }
+                case .failure(let __error):
+                    DispatchQueue.main.async {
+                        AlertView.alert.show(in: self, text: "Ошибка, попробуйте еще раз!")
+                    }
+                }
+            }
+        }
+    }
     
 }

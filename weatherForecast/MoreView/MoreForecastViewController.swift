@@ -11,7 +11,8 @@ class MoreForecastViewController: UIViewController {
     
     // MARK: Data
     
-    var model: CityModelForecastByDay
+    let forecastModel: CityWeatherForecast
+    let cityModel: CityWeather
     
     private enum ReuseID: String {
         case day = "DayForecaseCell_ReuseID"
@@ -36,12 +37,13 @@ class MoreForecastViewController: UIViewController {
     
     // MARK: Lifecycle
     
-    init(model: CityModelForecastByDay, cityTitle: String) {
-        self.model = model
+    init(cityModel: CityWeather, forecastModel: CityWeatherForecast) {
+        self.cityModel = cityModel
+        self.forecastModel = forecastModel
         
         super.init(nibName: nil, bundle: nil)
         
-        navigationItem.title = cityTitle
+        navigationItem.title = cityModel.name
     }
     
     required init?(coder: NSCoder) {
@@ -112,8 +114,6 @@ class MoreForecastViewController: UIViewController {
 
 extension MoreForecastViewController: UITableViewDataSource {
     
-    // Не разобрался как сделать отступы между ячейка. Зато придумал как это сделать через секции и вью как футер каждой :)
-    
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return 10
     }
@@ -143,7 +143,7 @@ extension MoreForecastViewController: UITableViewDataSource {
                 fatalError("could not dequeueReusableCell")
             }
             
-            cell.setupView(mode: .day, model: model)
+            cell.setupView(mode: .day, model: forecastModel)
             
             return cell
         } else if indexPath.section == 1 {
@@ -154,7 +154,7 @@ extension MoreForecastViewController: UITableViewDataSource {
                 fatalError("could not dequeueReusableCell")
             }
             
-            cell.setupView(mode: .night, model: model)
+            cell.setupView(mode: .night, model: forecastModel)
             
             return cell
         } else {
@@ -165,7 +165,7 @@ extension MoreForecastViewController: UITableViewDataSource {
                 fatalError("could not dequeueReusableCell")
             }
             
-            cell.setup(with: model.astro)
+            cell.setup(with: cityModel)
             
             return cell
         }

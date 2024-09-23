@@ -237,21 +237,21 @@ class MoreDayTempTableCell: UITableViewCell {
     
     // MARK: Public
     
-    func setupView(mode: Mode, model: CityModelForecastByDay) {
+    func setupView(mode: Mode, model: CityWeatherForecast) {
         if mode == .day {
             dayLabel.text = "День"
             
-            degreesLabel.text = "\(model.day.getAvarageTemp().1) \(SettingsStore.shared.getTempEnding())"
+            degreesLabel.text = "\(model.getAvarageTemp().1) \(SettingsStore.shared.getTempEnding())"
             
         } else {
             dayLabel.text = "Ночь"
             
-            degreesLabel.text = "\(model.day.getAvarageTemp().0) \(SettingsStore.shared.getTempEnding())"
+            degreesLabel.text = "\(model.getAvarageTemp().0) \(SettingsStore.shared.getTempEnding())"
         }
         
-        conditionLabel.text = model.day.condition.text
-        windValueLabel.text = "\(model.day.getWindSpeed()) \(SettingsStore.shared.getWindSpeedEnding())"
-        rainValueLabel.text = "\(model.day.rainChance)%"
-        cloudValueLabel.text = "\(model.day.avgHumidity)%"
+        conditionLabel.text = model.conditionText
+        windValueLabel.text = "\(model.getWindSpeed()) \(SettingsStore.shared.getWindSpeedEnding())"
+        rainValueLabel.text = "\(model.rainChance)%"
+        cloudValueLabel.text = "\(model.avgHumidity)%"
     }
 }

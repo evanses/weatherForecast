@@ -58,19 +58,19 @@ import Foundation
      "forecastday": [тут массив из CityModelDay]
  }
  */
-struct CityModel: Codable {
-    let location: CityModelLocation
-    let current: CityModelCurrentWeather
-    let forecast: CityModelForecast
+struct ApiCityModel: Codable {
+    let location: ApiCityModelLocation
+    let current: ApiCityModelCurrentWeather
+    let forecast: ApiCityModelForecast
     
-    init(location: CityModelLocation, current: CityModelCurrentWeather, forecast: CityModelForecast) {
+    init(location: ApiCityModelLocation, current: ApiCityModelCurrentWeather, forecast: ApiCityModelForecast) {
         self.location = location
         self.current = current
         self.forecast = forecast
     }
 }
 
-struct CityModelLocation: Codable {
+struct ApiCityModelLocation: Codable {
     let name: String
     let lat: Double
     let lon: Double
@@ -82,7 +82,7 @@ struct CityModelLocation: Codable {
     }
 }
 
-struct CityModelCurrentWeather: Codable {
+struct ApiCityModelCurrentWeather: Codable {
     let tempC: Double
     let feelsLikeC: Double
     
@@ -96,9 +96,9 @@ struct CityModelCurrentWeather: Codable {
     
     let cloud: Int
     
-    let condition: CityModelCondition
+    let condition: ApiCityModelCondition
     
-    init(tempC: Double, feelsLikeC: Double, tempF: Double, feelsLikeF: Double, windM: Double, windKm: Double, humidity: Int, cloud: Int, condition: CityModelCondition) {
+    init(tempC: Double, feelsLikeC: Double, tempF: Double, feelsLikeF: Double, windM: Double, windKm: Double, humidity: Int, cloud: Int, condition: ApiCityModelCondition) {
         self.tempC = tempC
         self.feelsLikeC = feelsLikeC
         self.tempF = tempF
@@ -119,30 +119,6 @@ struct CityModelCurrentWeather: Codable {
         case windKm = "wind_kph"
         case humidity, cloud, condition
     }
-    
-    func getTemp() -> Double {
-        if SettingsStore.shared.getTempMetricMode() {
-            return tempF
-        } else {
-            return tempC
-        }
-    }
-    
-    func getFeelsLikeTemp() -> Double {
-        if SettingsStore.shared.getTempMetricMode() {
-            return feelsLikeF
-        } else {
-            return feelsLikeC
-        }
-    }
-    
-    func getWindSpeed() -> Double {
-        if SettingsStore.shared.getWindMetricMode() {
-            return windM
-        } else {
-            return windKm
-        }
-    }
 }
 
 /*
@@ -152,7 +128,7 @@ struct CityModelCurrentWeather: Codable {
      "code": 1063
  },
  */
-struct CityModelCondition: Codable {
+struct ApiCityModelCondition: Codable {
     let text: String
     
     init(text: String) {
@@ -160,25 +136,25 @@ struct CityModelCondition: Codable {
     }
 }
 
-struct CityModelForecast: Codable {
-    let foreCastByDay: [CityModelForecastByDay]
+struct ApiCityModelForecast: Codable {
+    let foreCastByDay: [ApiCityModelForecastByDay]
     
     private enum CodingKeys: String, CodingKey {
         case foreCastByDay = "forecastday"
     }
     
-    init(foreCastByDay: [CityModelForecastByDay]) {
+    init(foreCastByDay: [ApiCityModelForecastByDay]) {
         self.foreCastByDay = foreCastByDay
     }
 }
 
-struct CityModelForecastByDay: Codable {
+struct ApiCityModelForecastByDay: Codable {
     let date: String
-    let astro: CityModelAstro
-    let hour: [CityModelHourForecast]
-    let day: CityModelDay
+    let astro: ApiCityModelAstro
+    let hour: [ApiCityModelHourForecast]
+    let day: ApiCityModelDay
     
-    init(date: String, astro: CityModelAstro, hour: [CityModelHourForecast], day: CityModelDay) {
+    init(date: String, astro: ApiCityModelAstro, hour: [ApiCityModelHourForecast], day: ApiCityModelDay) {
         self.date = date
         self.astro = astro
         self.hour = hour
@@ -214,7 +190,7 @@ struct CityModelForecastByDay: Codable {
      "uv": 3.0
  },
  */
-struct CityModelDay: Codable {
+struct ApiCityModelDay: Codable {
     let minTempC: Double
     let maxTempC: Double
     
@@ -226,11 +202,11 @@ struct CityModelDay: Codable {
     let windSpeedM: Double
     let windSpeedK: Double
     
-    let condition: CityModelCondition
+    let condition: ApiCityModelCondition
     
     let rainChance: Int
     
-    init(minTempC: Double, maxTempC: Double, minTempF: Double, maxTempF: Double, avgHumidity: Int, windSpeedM: Double, windSpeedK: Double, condition: CityModelCondition, rainChance: Int) {
+    init(minTempC: Double, maxTempC: Double, minTempF: Double, maxTempF: Double, avgHumidity: Int, windSpeedM: Double, windSpeedK: Double, condition: ApiCityModelCondition, rainChance: Int) {
         self.minTempC = minTempC
         self.maxTempC = maxTempC
         self.minTempF = minTempF
@@ -283,7 +259,7 @@ struct CityModelDay: Codable {
      "is_sun_up": 0
  },
  */
-struct CityModelAstro: Codable {
+struct ApiCityModelAstro: Codable {
     let sunrise: String
     let sunset: String
     let moonrise: String
@@ -337,14 +313,14 @@ struct CityModelAstro: Codable {
  "gust_kph": 21.9,
  "uv": 0
  */
-struct CityModelHourForecast: Codable {
+struct ApiCityModelHourForecast: Codable {
     let tempC: Double
     let tempF: Double
     let time: String
 
-    let condition: CityModelCondition
+    let condition: ApiCityModelCondition
     
-    init(tempC: Double, tempF: Double, time: String, condition: CityModelCondition) {
+    init(tempC: Double, tempF: Double, time: String, condition: ApiCityModelCondition) {
         self.tempC = tempC
         self.tempF = tempF
         self.time = time

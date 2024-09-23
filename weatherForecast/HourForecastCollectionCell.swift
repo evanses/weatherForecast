@@ -83,16 +83,12 @@ class HourForecastCollectionCell : UICollectionViewCell {
     
     // MARK: - Public
 
-    func setup(with model: CityModelHourForecast) {
+    func setup(with model: CityWeatherByHour) {
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = .gmt
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
-        let date = dateFormatter.date(from: model.time)
         
-        if let date {
-            dateFormatter.dateFormat = "HH:mm"
-            timeLabel.text = dateFormatter.string(from: date)
-        }
+        dateFormatter.dateFormat = "HH:mm"
+        timeLabel.text = dateFormatter.string(from: model.time)
         
         gradusLabel.text = "\(model.getTemp())°"
     }

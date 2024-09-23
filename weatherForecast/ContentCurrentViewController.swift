@@ -12,7 +12,7 @@ class ContentCurrentViewController: UIViewController {
     
     // MARK: Data
     
-    let cityModel: CityModelView
+    let model: CityModelView
     
     private enum ReuseID: String {
         case collection = "HourForecaseCell_ReuseID"
@@ -245,7 +245,7 @@ class ContentCurrentViewController: UIViewController {
     // MARK: Lifecycle
     
     init(lat: Double, lon: Double) {
-        cityModel = CityModelView(lat: lat, lon: lon)
+        model = CityModelView(lat: lat, lon: lon)
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -264,8 +264,6 @@ class ContentCurrentViewController: UIViewController {
         
         bindingModelView()
         
-        setupView()
-        
         tuneTableView()
         tuneColletionView()
     }
@@ -273,31 +271,27 @@ class ContentCurrentViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        setupView()
+        updateView()
     }
     
     // MARK: - Private
     
-    func setupView() {
-        if let cityModel = cityModel.cityModel {
-            cityTitleLabel.text = cityModel.location.name
+    func updateView() {
+        if let cityModel = model.citeWeather {
+            cityTitleLabel.text = cityModel.name
             
-            gradusLabel.text = "\(cityModel.current.getTemp()) \(SettingsStore.shared.getTempEnding())"
-            feelingLikeLabel.text = "Ощущается как \(cityModel.current.getFeelsLikeTemp()) \(SettingsStore.shared.getTempEnding())"
-            conditionLabel.text = cityModel.current.condition.text
-            cloudImageLabel.text = "\(cityModel.current.cloud)"
-            windImageLabel.text = "\(cityModel.current.getWindSpeed()) \(SettingsStore.shared.getWindSpeedEnding())"
-            humidityImageLabel.text = "\(cityModel.current.humidity)%"
+            gradusLabel.text = "\(cityModel.getTemp()) \(SettingsStore.shared.getTempEnding())"
+            feelingLikeLabel.text = "Ощущается как \(cityModel.getFeelsLikeTemp()) \(SettingsStore.shared.getTempEnding())"
+            conditionLabel.text = cityModel.conditionText
+            cloudImageLabel.text = "\(cityModel.cloud)"
+            windImageLabel.text = "\(cityModel.getWindSpeed()) \(SettingsStore.shared.getWindSpeedEnding())"
+            humidityImageLabel.text = "\(cityModel.humidity)%"
             
-            if let sunrise = cityModel.forecast.foreCastByDay.first?.astro.sunrise {
-                let sunriseTime = sunrise
-                sunriseLabel.text = SettingsStore.shared.get24Time(from: sunriseTime)
-            }
-                
-            if let sunset = cityModel.forecast.foreCastByDay.first?.astro.sunset {
-                let sunsetTime = sunset
-                sunsetLabel.text = SettingsStore.shared.get24Time(from: sunsetTime)
-            }
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "HH:mm"
+            
+            sunriseLabel.text = dateFormatter.string(from: cityModel.sunrise)
+            sunsetLabel.text = dateFormatter.string(from: cityModel.sunset)
             
             collectionView.reloadData()
             everydayForecastTable.reloadData()
@@ -305,26 +299,27 @@ class ContentCurrentViewController: UIViewController {
     }
 
     func setupViewFromSaved() {
-        if let cityModel = cityModel.cityModel {
-            cityTitleLabel.text = cityModel.location.name
+        if let cityModel = model.citeWeather {
+            cityTitleLabel.text = cityModel.name
             
-            gradusLabel.text = "\(cityModel.current.getTemp()) \(SettingsStore.shared.getTempEnding())"
-            feelingLikeLabel.text = "Ощущается как \(cityModel.current.getFeelsLikeTemp()) \(SettingsStore.shared.getTempEnding())"
-            conditionLabel.text = cityModel.current.condition.text
-            cloudImageLabel.text = "\(cityModel.current.cloud)"
-            windImageLabel.text = "\(cityModel.current.getWindSpeed()) \(SettingsStore.shared.getWindSpeedEnding())"
-            humidityImageLabel.text = "\(cityModel.current.humidity)%"
+            gradusLabel.text = "\(cityModel.getTemp()) \(SettingsStore.shared.getTempEnding())"
+            feelingLikeLabel.text = "Ощущается как \(cityModel.getFeelsLikeTemp()) \(SettingsStore.shared.getTempEnding())"
+            conditionLabel.text = cityModel.conditionText
+            cloudImageLabel.text = "\(cityModel.cloud)"
+            windImageLabel.text = "\(cityModel.getWindSpeed()) \(SettingsStore.shared.getWindSpeedEnding())"
+            humidityImageLabel.text = "\(cityModel.humidity)%"
             
-            let sunriseTime = (cityModel.forecast.foreCastByDay.first?.astro.sunrise)!
-            let sunsetTime = (cityModel.forecast.foreCastByDay.first?.astro.sunset)!
+            let dateFormatter = DateFormatter()
+            dateFormatter.timeZone = .gmt
+            dateFormatter.dateFormat = "HH:mm"
             
-            sunriseLabel.text = SettingsStore.shared.get24Time(from: sunriseTime)
-            sunsetLabel.text = SettingsStore.shared.get24Time(from: sunsetTime)
+            sunriseLabel.text = dateFormatter.string(from: cityModel.sunrise)
+            sunsetLabel.text = dateFormatter.string(from: cityModel.sunset)
         }
     }
     
     private func bindingModelView() {
-        cityModel.stateChanger = { [weak self] state in
+        model.stateChanger = { [weak self] state in
             guard let self else { return }
             
             switch state {
@@ -332,11 +327,12 @@ class ContentCurrentViewController: UIViewController {
                 break
             case .loaded:
                 DispatchQueue.main.async {
-                    self.setupView()
+                    self.updateView()
                 }
             case .loadedSaved:
                 DispatchQueue.main.async {
                     self.setupViewFromSaved()
+                    print("check")
                 }
 
             case .error:
@@ -513,7 +509,7 @@ extension ContentCurrentViewController: UICollectionViewDataSource {
         _ collectionView: UICollectionView,
         numberOfItemsInSection section: Int
     ) -> Int {
-        cityModel.cityModel?.forecast.foreCastByDay.first?.hour.count ?? 0
+        model.citeWeather?.byHour.count ?? 0
     }
 
     func collectionView(
@@ -524,11 +520,9 @@ extension ContentCurrentViewController: UICollectionViewDataSource {
             withReuseIdentifier: ReuseID.collection.rawValue,
             for: indexPath) as! HourForecastCollectionCell
         
-        let r = cityModel.cityModel?.forecast.foreCastByDay.first?.hour[indexPath.row]
+        guard let i = model.citeWeather?.byHour[indexPath.row] else { return cell }
         
-        if let r = r {
-            cell.setup(with: r)
-        }
+        cell.setup(with: i)
 
         return cell
     }
@@ -562,7 +556,7 @@ extension ContentCurrentViewController: UITableViewDataSource {
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        cityModel.cityModel?.forecast.foreCastByDay.count ?? 0
+        model.cityWeatherForecast.count
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -577,12 +571,8 @@ extension ContentCurrentViewController: UITableViewDataSource {
             fatalError("could not dequeueReusableCell")
         }
         
-        let r = cityModel.cityModel?.forecast.foreCastByDay[indexPath.section]
-        
-        if let r {
-            cell.setup(with: r.day, and: r.date)
-        }
-        
+        let i = model.cityWeatherForecast[indexPath.section]
+        cell.setup(with: i)
         return cell
     }
 }
@@ -598,11 +588,13 @@ extension ContentCurrentViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let r = cityModel.cityModel?.forecast.foreCastByDay[indexPath.section]
+        guard let citeWeather = model.citeWeather else { return }
+        let i = model.cityWeatherForecast[indexPath.section]
         
-        if let r {
-            let nextVC = MoreForecastViewController(model: r, cityTitle: (cityModel.cityModel?.location.name)!)
-            navigationController?.pushViewController(nextVC, animated: true)
-        }
+        let nextVC = MoreForecastViewController(
+            cityModel: citeWeather,
+            forecastModel: i
+        )
+        navigationController?.pushViewController(nextVC, animated: true)
     }
 }

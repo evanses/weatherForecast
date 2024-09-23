@@ -25,50 +25,44 @@ final class CoreDataManager {
         return container
     }()
 
-    func getCurrent() -> CityModel? {
+    func getCurrent() -> CityWeather? {
         let req = SavedCurrent.fetchRequest()
         let ftch = (try? persistentContainer.viewContext.fetch(req)) ?? []
         
-        var savedList: [CityModel] = []
+        var savedList: [CityWeather] = []
         
         ftch.forEach { city in
             guard let cityName = city.cityName, let conditionText = city.conditionText else {
                 return
             }
             
-            let location = CityModelLocation(
-                name: cityName,
+            let cityWeather = CityWeather(
                 lat: city.lat,
-                lon: city.lon
-            )
-            
-            let current = CityModelCurrentWeather(
+                lon: city.lon,
+                name: cityName,
                 tempC: city.tempC,
-                feelsLikeC: city.feelsLikeC,
                 tempF: city.tempF,
+                feelsLikeC: city.feelsLikeC,
                 feelsLikeF: city.feelsLikeF,
                 windM: city.windM,
                 windKm: city.windKm,
                 humidity: Int(city.humidity),
                 cloud: Int(city.cloud),
-                condition: CityModelCondition(text: conditionText)
+                conditionText: conditionText,
+                sunrise: Date(),
+                sunset: Date(),
+                moonrise: Date(),
+                moonset: Date(),
+                byHour: []
             )
             
-            let forecast = CityModelForecast(foreCastByDay: [])
-            
-            let saveCity = CityModel(
-                location: location,
-                current: current,
-                forecast: forecast
-            )
-            
-            savedList.append(saveCity)
+            savedList.append(cityWeather)
         }
         
         return savedList.first
     }
 
-    func updateCurrent(city: CityModel) {        
+    func updateCurrent(city: CityWeather) {
         persistentContainer.performBackgroundTask { backContext in
             let req = SavedCurrent.fetchRequest()
             let ftch = (try? backContext.fetch(req)) ?? []
@@ -79,22 +73,50 @@ final class CoreDataManager {
             }
             
             let toSaveCity = SavedCurrent(context: backContext)
-            toSaveCity.cityName = city.location.name
-            toSaveCity.lat = city.location.lat
-            toSaveCity.lon = city.location.lon
-            toSaveCity.tempC = city.current.tempC
-            toSaveCity.feelsLikeC = city.current.feelsLikeC
-            toSaveCity.tempF = city.current.tempF
-            toSaveCity.feelsLikeF = city.current.feelsLikeF
-            toSaveCity.windM = city.current.windM
-            toSaveCity.windKm = city.current.windKm
-            toSaveCity.humidity = Int64(city.current.humidity)
-            toSaveCity.cloud = Int64(city.current.cloud)
-            toSaveCity.conditionText = city.current.condition.text
+            toSaveCity.cityName = city.name
+            toSaveCity.lat = city.lat
+            toSaveCity.lon = city.lon
+            toSaveCity.tempC = city.tempC
+            toSaveCity.feelsLikeC = city.feelsLikeC
+            toSaveCity.tempF = city.tempF
+            toSaveCity.feelsLikeF = city.feelsLikeF
+            toSaveCity.windM = city.windM
+            toSaveCity.windKm = city.windKm
+            toSaveCity.humidity = Int64(city.humidity)
+            toSaveCity.cloud = Int64(city.cloud)
+            toSaveCity.conditionText = city.conditionText
             
             try? backContext.save()
         }
     }
 
+    func addCity(newCity: GeoCodingCity) {
+        guard let lat: Double = Double(newCity.lat), let lon: Double = Double(newCity.lon) else {
+            return
+        }
+        
+        persistentContainer.performBackgroundTask { backContext in
+            let toSaveCity = SavedCity(context: backContext)
+            toSaveCity.lat = lat
+            toSaveCity.lon = lon
+            toSaveCity.name = newCity.name
+            
+            try? backContext.save()
+        }
+    }
+    
+    func getCities() -> [(Double, Double)] {
+        let req = SavedCity.fetchRequest()
+        let ftch = (try? persistentContainer.viewContext.fetch(req)) ?? []
+        
+        var savedList: [(Double, Double)] = []
+        
+        ftch.forEach { city in
+            
+            savedList.append((city.lat, city.lon))
+        }
+        
+        return savedList
+    }
     
 }

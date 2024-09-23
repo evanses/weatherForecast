@@ -269,11 +269,15 @@ class MoreDaySunTableView: UITableViewCell {
     
     // MARK: Public
     
-    func setup(with model: CityModelAstro) {
-        sunriseValue.text = SettingsStore.shared.get24Time(from: model.sunrise)
-        sunsetValue.text = SettingsStore.shared.get24Time(from: model.sunset)
+    func setup(with model: CityWeather) {
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = .gmt
+        dateFormatter.dateFormat = "HH:mm"
         
-        moonriseValue.text = SettingsStore.shared.get24Time(from: model.moonrise)
-        moonsetValue.text = SettingsStore.shared.get24Time(from: model.moonset)
+        sunriseValue.text = dateFormatter.string(from: model.sunrise)
+        sunsetValue.text = dateFormatter.string(from: model.sunset)
+        
+        moonriseValue.text = dateFormatter.string(from: model.moonrise)
+        moonsetValue.text = dateFormatter.string(from: model.moonset)
     }
 }
