@@ -201,8 +201,8 @@ class SettingsViewController: UIViewController {
     // MARK: Lifecycle
     
     init() {
-        self.settingsTempMetricMode = SettingsStore.shared.getTempMetricMode()
-        self.settingsWindMetricMode = SettingsStore.shared.getWindMetricMode()
+        self.settingsTempMetricMode = SettingsStore.shared.metricTempMode
+        self.settingsWindMetricMode = SettingsStore.shared.metricWindMode
         
         super.init(nibName: nil, bundle: nil)
     }
@@ -354,8 +354,8 @@ class SettingsViewController: UIViewController {
     }
     
     @objc private func saveButtonPressed() {
-        SettingsStore.shared.setTempMetricMode(value: settingsTempMetricMode)
-        SettingsStore.shared.setWindMetricMode(value: settingsWindMetricMode)
+        SettingsStore.shared.metricTempMode = settingsTempMetricMode
+        SettingsStore.shared.metricWindMode = settingsWindMetricMode
         
         self.navigationController?.popViewController(animated: true)
     }

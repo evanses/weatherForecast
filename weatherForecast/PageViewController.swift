@@ -8,7 +8,8 @@
 import UIKit
 
 protocol PageViewControllerDelegate {
-    func appendToPages(_ vc: UIViewController)
+    func appendToPages(_ newViewController: ContentCurrentViewController)
+    func reloadPages()
 }
 
 class PageViewController: UIViewController {
@@ -40,6 +41,7 @@ class PageViewController: UIViewController {
                 lat: coords.0,
                 lon: coords.1
             )
+            page.isAutolocated = true
             
             pages.append(page)
         }
@@ -61,6 +63,12 @@ class PageViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
         
         emptyPage.delegate = self
+        
+        pages.forEach { view in
+            guard let vc = view as? ContentCurrentViewController else { return }
+            
+            vc.delegate = self
+        }
     }
     
     override func viewDidLoad() {
@@ -137,7 +145,31 @@ class PageViewController: UIViewController {
     }
     
     @objc private func gpsPickerButton() {
-        
+        AddCityAlertView.picker.show(in: self) { cityName in
+            NetworkManager.shared.geoCoding(cityName: cityName) { result in
+                switch result {
+                case .success(let success):
+                    CoreDataManager.shared.addCity(newCity: success)
+                    
+                    DispatchQueue.main.async {
+                        AlertView.alert.show(in: self, text: "Город добавлен!")
+                        
+                        guard let lat = Double(success.lat), let lon = Double(success.lon) else { return }
+                        
+                        let newPage = ContentCurrentViewController(
+                            lat: lat,
+                            lon: lon
+                        )
+                        
+                        self.appendToPages(newPage)
+                    }
+                case .failure(_):
+                    DispatchQueue.main.async {
+                        AlertView.alert.show(in: self, text: "Ошибка, попробуйте еще раз!")
+                    }
+                }
+            }
+        }
     }
     
 }
@@ -176,20 +208,54 @@ extension PageViewController: UIPageViewControllerDataSource {
 }
 
 extension PageViewController: PageViewControllerDelegate {
-    func appendToPages(_ newViewController: UIViewController) {        
+    func appendToPages(_ newViewController: ContentCurrentViewController) {
         var newPages: [UIViewController] = []
-        let emptyVC = pages.last as? EmptyContentViewController
         
-        pages.forEach { vc in
-            if let vc = vc as? ContentCurrentViewController {
-                newPages.append(vc)
-            }
+        pages.forEach { view in
+            guard let vc = view as? ContentCurrentViewController else { return }
+            newPages.append(vc)
         }
         
-        pages = newPages
-        pages.append(newViewController)
-        pages.append(emptyVC!)
+        newViewController.delegate = self
+        newPages.append(newViewController)
         
-        pageViewController.reloadInputViews()
+        let emptyPage = EmptyContentViewController()
+        emptyPage.delegate = self
+        newPages.append(emptyPage)
+        
+        pages = newPages
+    
+        pageViewController.setViewControllers([newViewController], direction: .forward, animated: true)
+    }
+    
+    func reloadPages() {
+        pages.removeAll()
+        
+        let emptyPage = EmptyContentViewController()
+        emptyPage.delegate = self
+        
+        if SettingsStore.shared.isAutoLocation() {
+            let coords: (Double, Double) = LocationService.shared.getCurrentLocation()
+            let page = ContentCurrentViewController(
+                lat: coords.0,
+                lon: coords.1
+            )
+            page.isAutolocated = true
+            pages.append(page)
+        }
+        
+        let savedCities = CoreDataManager.shared.getCities()
+        for city in savedCities {
+            let page = ContentCurrentViewController(
+                lat: city.0,
+                lon: city.1
+            )
+            page.delegate = self
+            pages.append(page)
+        }
+
+        pages.append(emptyPage)
+        
+        pageViewController.setViewControllers([pages.first!], direction: .forward, animated: true)
     }
 }

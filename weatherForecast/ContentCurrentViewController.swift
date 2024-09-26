@@ -12,11 +12,16 @@ class ContentCurrentViewController: UIViewController {
     
     // MARK: Data
     
+    var isAutolocated: Bool = false
+    
+    var delegate: PageViewControllerDelegate?
+    
     let model: CityModelView
     
     private enum ReuseID: String {
         case collection = "HourForecaseCell_ReuseID"
         case table = "TableViewCell_ReuseID"
+        case delete = "DeleteButton_ReuseID"
     }
     
     // MARK: Subviews
@@ -246,7 +251,6 @@ class ContentCurrentViewController: UIViewController {
     
     init(lat: Double, lon: Double) {
         model = CityModelView(lat: lat, lon: lon)
-        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -288,6 +292,7 @@ class ContentCurrentViewController: UIViewController {
             humidityImageLabel.text = "\(cityModel.humidity)%"
             
             let dateFormatter = DateFormatter()
+            dateFormatter.timeZone = .gmt
             dateFormatter.dateFormat = "HH:mm"
             
             if let sunrise = cityModel.sunrise {
@@ -505,6 +510,11 @@ class ContentCurrentViewController: UIViewController {
             forCellReuseIdentifier: ReuseID.table.rawValue
         )
         
+        everydayForecastTable.register(
+            DeleteCityTableCell.self,
+            forCellReuseIdentifier: ReuseID.delete.rawValue
+        )
+        
         everydayForecastTable.dataSource = self
         everydayForecastTable.delegate = self
         
@@ -574,7 +584,11 @@ extension ContentCurrentViewController: UITableViewDataSource {
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        model.cityWeatherForecast.count
+        if isAutolocated {
+            model.cityWeatherForecast.count
+        } else {
+            model.cityWeatherForecast.count + 1
+        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -582,6 +596,16 @@ extension ContentCurrentViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if indexPath.section == model.cityWeatherForecast.count && !isAutolocated {
+            guard let cell = everydayForecastTable.dequeueReusableCell(
+                withIdentifier: ReuseID.delete.rawValue,
+                for: indexPath
+            ) as? DeleteCityTableCell else {
+                fatalError("could not dequeueReusableCell")
+            }
+            return cell
+        }
+        
         guard let cell = everydayForecastTable.dequeueReusableCell(
             withIdentifier: ReuseID.table.rawValue,
             for: indexPath
@@ -606,6 +630,16 @@ extension ContentCurrentViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if indexPath.section == model.cityWeatherForecast.count && !isAutolocated {
+            CoreDataManager.shared.deleteCity(lat: model.lat, lon: model.lon)
+            
+            AlertView.alert.show(in: self, text: "Город удален!")
+            
+            delegate?.reloadPages()
+            
+            return
+        }
+        
         guard let citeWeather = model.citeWeather else { return }
         let i = model.cityWeatherForecast[indexPath.section]
         

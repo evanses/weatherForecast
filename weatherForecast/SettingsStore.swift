@@ -9,6 +9,25 @@ import Foundation
 
 final class SettingsStore {
     static let shared = SettingsStore()
+    private let defaults = UserDefaults.standard
+    
+    var metricWindMode: Bool {
+        get {
+            defaults.bool(forKey: "windMode")
+        }
+        set {
+            defaults.set(newValue, forKey: "windMode")
+        }
+    }
+    
+    var metricTempMode: Bool {
+        get {
+            defaults.bool(forKey: "tempMode")
+        }
+        set {
+            defaults.set(newValue, forKey: "tempMode")
+        }
+    }
     
     private init() {}
     
@@ -18,57 +37,27 @@ final class SettingsStore {
          1 - авто локация
          2 - ручная локация
          */
-        let defaults = UserDefaults.standard
         let a = defaults.integer(forKey: "autoLocation")
 
         return a == 0 ? true : false
     }
     
     func isAutoLocation() -> Bool {
-        let defaults = UserDefaults.standard
         let a = defaults.integer(forKey: "autoLocation")
         
         return a == 1 ? true : false
     }
     
     func setAutoLocation() {
-        let defaults = UserDefaults.standard
         defaults.set(1, forKey: "autoLocation")
     }
     
     func setManualLocation() {
-        let defaults = UserDefaults.standard
         defaults.set(2, forKey: "autoLocation")
     }
     
-    func setTempMetricMode(value: Bool) {
-        let defaults = UserDefaults.standard
-        defaults.set(value, forKey: "tempMode")
-    }
-    
-    /// Если true -> F else C
-    func getTempMetricMode() -> Bool {
-        let defaults = UserDefaults.standard
-        let a = defaults.integer(forKey: "tempMode")
-        
-        return a == 1 ? true : false
-    }
-    
-    func setWindMetricMode(value: Bool) {
-        let defaults = UserDefaults.standard
-        defaults.set(value, forKey: "windMode")
-    }
-    
-    // Если true -> mi else km
-    func getWindMetricMode() -> Bool {
-        let defaults = UserDefaults.standard
-        let a = defaults.integer(forKey: "windMode")
-        
-        return a == 1 ? true : false
-    }
-    
     func getWindSpeedEnding() -> String {
-        if getWindMetricMode() {
+        if metricWindMode {
             return "м/с"
         } else {
             return "км/ч"
@@ -76,7 +65,7 @@ final class SettingsStore {
     }
     
     func getTempEnding() -> String {
-        if getTempMetricMode() {
+        if metricTempMode {
             return "°F"
         } else {
             return "°C"

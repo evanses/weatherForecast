@@ -231,7 +231,7 @@ struct ApiCityModelDay: Codable {
     }
     
     func getAvarageTemp() -> (Double, Double) {
-        if SettingsStore.shared.getTempMetricMode() {
+        if SettingsStore.shared.metricTempMode {
             return (minTempF, maxTempF)
         } else {
             return (minTempC, maxTempC)
@@ -239,7 +239,7 @@ struct ApiCityModelDay: Codable {
     }
     
     func getWindSpeed() -> Double {
-        if SettingsStore.shared.getTempMetricMode() {
+        if SettingsStore.shared.metricTempMode {
             return windSpeedM
         } else {
             return windSpeedK
@@ -334,7 +334,7 @@ struct ApiCityModelHourForecast: Codable {
     }
 
     func getTemp() -> Double {
-        if SettingsStore.shared.getTempMetricMode() {
+        if SettingsStore.shared.metricTempMode {
             return tempF
         } else {
             return tempC
