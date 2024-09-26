@@ -8,11 +8,9 @@
 struct GeoCodingCity: Codable {
     let lat: String
     let lon: String
-    let name: String
     
     private enum CodingKeys: String, CodingKey {
         case lat = "geo_lat"
         case lon = "geo_lon"
-        case name = "city"
     }
 }

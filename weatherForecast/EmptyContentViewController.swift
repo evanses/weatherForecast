@@ -9,6 +9,10 @@ import UIKit
 
 class EmptyContentViewController: UIViewController {
     
+    // MARK: Data
+    
+    var delegate: PageViewControllerDelegate?
+    
     // MARK: Subviews
     
     private lazy var addGeoImage: UIImageView = {
@@ -68,6 +72,15 @@ class EmptyContentViewController: UIViewController {
                     
                     DispatchQueue.main.async {
                         AlertView.alert.show(in: self, text: "Город добавлен!")
+                        
+                        guard let lat = Double(success.lat), let lon = Double(success.lon) else { return }
+                        
+                        let newPage = ContentCurrentViewController(
+                            lat: lat,
+                            lon: lon
+                        )
+                        
+                        self.delegate?.appendToPages(newPage)
                     }
                 case .failure(let __error):
                     DispatchQueue.main.async {

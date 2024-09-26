@@ -86,10 +86,10 @@ class CityModelView {
                     humidity: current.current.humidity,
                     cloud: current.current.cloud,
                     conditionText: current.current.condition.text,
-                    sunrise: sunrise!,
-                    sunset: sunset!,
-                    moonrise: moonrise!,
-                    moonset: moonset!,
+                    sunrise: sunrise,
+                    sunset: sunset,
+                    moonrise: moonrise,
+                    moonset: moonset,
                     byHour: byHour
                 )
                 

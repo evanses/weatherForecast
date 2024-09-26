@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol PageViewControllerDelegate {
+    func appendToPages(_ vc: UIViewController)
+}
+
 class PageViewController: UIViewController {
     
     // MARK: Data
@@ -55,6 +59,8 @@ class PageViewController: UIViewController {
         self.currentVC = pages.first!
         
         super.init(nibName: nil, bundle: nil)
+        
+        emptyPage.delegate = self
     }
     
     override func viewDidLoad() {
@@ -113,7 +119,7 @@ class PageViewController: UIViewController {
         menuBtn.frame = CGRect(x: 0.0, y: 0.0, width: 20, height: 20)
         menuBtn.setImage(UIImage(named:"barPointPicker"), for: .normal)
         menuBtn.tintColor = .black
-        menuBtn.addTarget(self, action: #selector(showMenuButton), for: UIControl.Event.touchUpInside)
+        menuBtn.addTarget(self, action: #selector(gpsPickerButton), for: UIControl.Event.touchUpInside)
 
         let menuBarItem = UIBarButtonItem(customView: menuBtn)
         let currWidth = menuBarItem.customView?.widthAnchor.constraint(equalToConstant: 18)
@@ -167,4 +173,23 @@ extension PageViewController: UIPageViewControllerDataSource {
         func presentationIndex(for pageViewController: UIPageViewController) -> Int {
             return pages.firstIndex(of: self.currentVC) ?? 0
         }
+}
+
+extension PageViewController: PageViewControllerDelegate {
+    func appendToPages(_ newViewController: UIViewController) {        
+        var newPages: [UIViewController] = []
+        let emptyVC = pages.last as? EmptyContentViewController
+        
+        pages.forEach { vc in
+            if let vc = vc as? ContentCurrentViewController {
+                newPages.append(vc)
+            }
+        }
+        
+        pages = newPages
+        pages.append(newViewController)
+        pages.append(emptyVC!)
+        
+        pageViewController.reloadInputViews()
+    }
 }

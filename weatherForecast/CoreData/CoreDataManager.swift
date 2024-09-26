@@ -99,7 +99,6 @@ final class CoreDataManager {
             let toSaveCity = SavedCity(context: backContext)
             toSaveCity.lat = lat
             toSaveCity.lon = lon
-            toSaveCity.name = newCity.name
             
             try? backContext.save()
         }
@@ -118,5 +117,4 @@ final class CoreDataManager {
         
         return savedList
     }
-    
 }

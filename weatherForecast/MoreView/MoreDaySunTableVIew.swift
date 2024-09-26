@@ -274,10 +274,28 @@ class MoreDaySunTableView: UITableViewCell {
         dateFormatter.timeZone = .gmt
         dateFormatter.dateFormat = "HH:mm"
         
-        sunriseValue.text = dateFormatter.string(from: model.sunrise)
-        sunsetValue.text = dateFormatter.string(from: model.sunset)
+        if let sunrise = model.sunrise {
+            sunriseValue.text = dateFormatter.string(from: sunrise)
+        } else {
+            sunriseValue.text = "-"
+        }
         
-        moonriseValue.text = dateFormatter.string(from: model.moonrise)
-        moonsetValue.text = dateFormatter.string(from: model.moonset)
+        if let sunset = model.sunset {
+            sunsetValue.text = dateFormatter.string(from: sunset)
+        } else {
+            sunsetValue.text = "-"
+        }
+        
+        if let moonrise = model.moonrise {
+            moonriseValue.text = dateFormatter.string(from: moonrise)
+        } else {
+            moonriseValue.text = "-"
+        }
+        
+        if let moonset = model.moonset {
+            moonsetValue.text = dateFormatter.string(from: moonset)
+        } else {
+            moonsetValue.text = "-"
+        }
     }
 }

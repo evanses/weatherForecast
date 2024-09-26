@@ -290,8 +290,17 @@ class ContentCurrentViewController: UIViewController {
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "HH:mm"
             
-            sunriseLabel.text = dateFormatter.string(from: cityModel.sunrise)
-            sunsetLabel.text = dateFormatter.string(from: cityModel.sunset)
+            if let sunrise = cityModel.sunrise {
+                sunriseLabel.text = dateFormatter.string(from: sunrise)
+            } else {
+                sunriseLabel.text = "-"
+            }
+            
+            if let sunset = cityModel.sunset {
+                sunsetLabel.text = dateFormatter.string(from: sunset)
+            } else {
+                sunsetLabel.text = "-"
+            }
             
             collectionView.reloadData()
             everydayForecastTable.reloadData()
@@ -313,8 +322,17 @@ class ContentCurrentViewController: UIViewController {
             dateFormatter.timeZone = .gmt
             dateFormatter.dateFormat = "HH:mm"
             
-            sunriseLabel.text = dateFormatter.string(from: cityModel.sunrise)
-            sunsetLabel.text = dateFormatter.string(from: cityModel.sunset)
+            if let sunrise = cityModel.sunrise {
+                sunriseLabel.text = dateFormatter.string(from: sunrise)
+            } else {
+                sunriseLabel.text = "-"
+            }
+            
+            if let sunset = cityModel.sunset {
+                sunsetLabel.text = dateFormatter.string(from: sunset)
+            } else {
+                sunsetLabel.text = "-"
+            }
         }
     }
     

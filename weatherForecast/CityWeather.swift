@@ -27,10 +27,10 @@ struct CityWeather {
     
     let conditionText: String
     
-    let sunrise: Date
-    let sunset: Date
-    let moonrise: Date
-    let moonset: Date
+    let sunrise: Date?
+    let sunset: Date?
+    let moonrise: Date?
+    let moonset: Date?
     
     let byHour: [CityWeatherByHour]
     
