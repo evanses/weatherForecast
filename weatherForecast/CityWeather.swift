@@ -35,7 +35,7 @@ struct CityWeather {
     let byHour: [CityWeatherByHour]
     
     func getTemp() -> Double {
-        if SettingsStore.shared.getTempMetricMode() {
+        if SettingsStore.shared.metricTempMode {
             return tempF
         } else {
             return tempC
@@ -43,7 +43,7 @@ struct CityWeather {
     }
     
     func getFeelsLikeTemp() -> Double {
-        if SettingsStore.shared.getTempMetricMode() {
+        if SettingsStore.shared.metricTempMode {
             return feelsLikeF
         } else {
             return feelsLikeC
@@ -51,7 +51,7 @@ struct CityWeather {
     }
     
     func getWindSpeed() -> Double {
-        if SettingsStore.shared.getWindMetricMode() {
+        if SettingsStore.shared.metricWindMode {
             return windM
         } else {
             return windKm
@@ -78,7 +78,7 @@ struct CityWeatherForecast {
     let rainChance: Int
     
     func getAvarageTemp() -> (Double, Double) {
-        if SettingsStore.shared.getTempMetricMode() {
+        if SettingsStore.shared.metricTempMode {
             return (minTempF, maxTempF)
         } else {
             return (minTempC, maxTempC)
@@ -86,7 +86,7 @@ struct CityWeatherForecast {
     }
     
     func getWindSpeed() -> Double {
-        if SettingsStore.shared.getTempMetricMode() {
+        if SettingsStore.shared.metricTempMode {
             return windSpeedM
         } else {
             return windSpeedK
@@ -102,7 +102,7 @@ struct CityWeatherByHour {
     let conditionText: String
     
     func getTemp() -> Double {
-        if SettingsStore.shared.getTempMetricMode() {
+        if SettingsStore.shared.metricTempMode {
             return tempF
         } else {
             return tempC

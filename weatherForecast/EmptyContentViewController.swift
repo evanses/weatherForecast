@@ -82,7 +82,7 @@ class EmptyContentViewController: UIViewController {
                         
                         self.delegate?.appendToPages(newPage)
                     }
-                case .failure(let __error):
+                case .failure(_):
                     DispatchQueue.main.async {
                         AlertView.alert.show(in: self, text: "Ошибка, попробуйте еще раз!")
                     }

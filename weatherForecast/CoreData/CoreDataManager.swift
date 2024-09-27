@@ -6,6 +6,7 @@
 //
 
 import CoreData
+import Foundation
 
 final class CoreDataManager {
     static let shared = CoreDataManager()
@@ -117,4 +118,19 @@ final class CoreDataManager {
         
         return savedList
     }
+    
+    func deleteCity(lat: Double, lon: Double)  {
+        persistentContainer.performBackgroundTask { backContext in
+            let req = SavedCity.fetchRequest()
+            let ftch = (try? backContext.fetch(req)) ?? []
+            ftch.forEach { city in
+                if city.lat == lat && city.lon == lon {
+                    let toDelete = backContext.object(with: city.objectID)
+                    backContext.delete(toDelete)
+                    try? backContext.save()
+                }
+            }
+        }
+    }
+
 }
